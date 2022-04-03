@@ -239,27 +239,27 @@ C
 C  ************  Input data.
 C
 C  ****  Default model.
-      IELEC =-1        ! electron
-      IZ    = 0        ! no default
-      NELEC = 1000     ! =Z (the present value is a flag)
-      MNUCL = 3        ! Fermi nuclear charge distribution
-      MODF =  0        ! Nuclear model choice (1-5 for C-12)      
+      IZ    = 6        ! C-12
+      MNUCL = 4        ! Gaussian nuclear charge distribution
+      MODF  = 1        ! Nuclear model choice (1-5 for C-12)
+      NELEC = 0        ! Just nucleus
       MELEC = 4        ! DF electron density
       MUFFIN= 0        ! free atom
-      RMUF  =-200.0D0  ! free atom
-      MWEAK = 0        ! weak potential
-      MEXCH = 1        ! FM exchange potential
+      RMUF  = 0        ! free atom
+      IELEC =-1        ! electron
+      MWEAK = 2        ! weak potential model
+      MEXCH = 0        ! FM exchange potential
       MCPOL = 0        ! no correlation-polarization
       VPOLA =-1.0D0    ! atomic polarizability
       VPOLB =-1.0D0    ! polariz. cutoff parameter
       MABS  = 0        ! no absorption
       VABSA = 2.0D0    ! absorption potential strength
       VABSD =-1.0D0    ! energy gap
-      IHEF  = 1        ! high-energy factorization on
-      ISK  = 1        ! high-energy factorization on      
-      WKSK  = -0.01D0  ! skin is -1% of RCH 
-      XC2 = 1.01D0  ! skin is -1% of RCHT 
-      ISOT  = 0        ! isotop indicator number (e.g, ISOT = 1 for Ca-48)
+      IHEF  = 0        ! high-energy factorization on
+      ISK   = 1        ! test flag      
+      WKSK  = -0.00895 ! skin is -0.895% of RCH 
+      XC2   = 1.01D0   ! central value of C2 (in units of C1) 
+      ISOT  = 0        ! isotop indicator number (1 for Ca-48, 0 otherwise)
 C
   100 CONTINUE
       READ(5,'(A6,1X,A12)',END=9999) KWORD,BUFFER
