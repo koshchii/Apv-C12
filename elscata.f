@@ -216,7 +216,7 @@ C
 C  ****  Default model.
       IZ    = 6        ! C-12
       MNUCL = 4        ! Gaussian nuclear charge distribution
-      MODF  = 1        ! Nuclear model choice (1-5 for C-12)
+      MODF  = 1        ! Nuclear model choice 
       NELEC = 0        ! Just nucleus
       MELEC = 4        ! DF electron density
       MUFFIN= 0        ! free atom
@@ -392,22 +392,21 @@ C
       IF(EV.LT.10.0D0) STOP 'The kinetic energy is too small'
       
       IF (MODF.EQ.0) GO TO 400
-        IF (ISK.EQ.1) THEN
-            DX=-0.0001D0!skin step
-            DY=0.01D0!c2 step 
-        ELSE 
-            DX=0.009D0!c2 step
-            DY=-0.001D0
-        ENDIF
+      IF (ISK.EQ.1) THEN
+          DX=-0.0001D0!skin step
+          DY=0.01D0!c2 step 
+      ELSE 
+          DX=0.009D0!c2 step
+          DY=-0.001D0!skin step
+      ENDIF
 
-        DO L=1,1!12
-        IF (ISK.EQ.1) THEN
-            WKSK=0.0D0 !initial skin
-        ELSE
-            XC2=0.0D0!0.005D0!0.05D0
-        ENDIF
-        DO K=1,401
-********************************************************************************
+      IF (ISK.EQ.1) THEN
+        WKSK=0.0D0 !initial skin
+      ELSE
+        XC2=0.0D0!initial c2
+      ENDIF
+      DO K=1,401
+
   400   CONTINUE
         J=1
         DO WHILE (J.LE.3)!Loop over different beam helicities
@@ -440,60 +439,60 @@ C
                 WRITE(6,*) '         switched off.'
                 MCPOLC=0
                 VPOLBC=0.0D0
-            ELSE
-                MCPOLC=MCPOL
-                IF(VPOLB.LT.0.0D0) THEN
-                    VPOLBC=0.25D0*SQRT(MAX(EV-50.0D0,16.0D0))
                 ELSE
-                    VPOLBC=VPOLB
+                    MCPOLC=MCPOL
+                    IF(VPOLB.LT.0.0D0) THEN
+                        VPOLBC=0.25D0*SQRT(MAX(EV-50.0D0,16.0D0))
+                    ELSE
+                        VPOLBC=VPOLB
+                    ENDIF
                 ENDIF
-            ENDIF
-        ELSE
-            MCPOLC=0
-            VPOLBC=0.0D0
-        ENDIF
-        IF(MABS.NE.0) THEN
-            IF(EV.GT.1.0D6) THEN
-                WRITE(6,*) 'WARNING: For E>1 MeV, the absorption correc',
-     1                      'tion is switched off.'
-                MABSC=0
             ELSE
-                MABSC=MABS
+                MCPOLC=0
+                VPOLBC=0.0D0
             ENDIF
-        ELSE
-            MABSC=0
-        ENDIF
+            IF(MABS.NE.0) THEN
+                IF(EV.GT.1.0D6) THEN
+                    WRITE(6,*) 'WARNING: For E>1 MeV, the absorption correc',
+     1                      'tion is switched off.'
+                    MABSC=0
+                ELSE
+                    MABSC=MABS
+                ENDIF
+            ELSE
+                MABSC=0
+            ENDIF
 C
-        IF(J.EQ.1) THEN
-            CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
-     1              MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
+            IF(J.EQ.1) THEN
+                CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
+     1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
      2                      VABSD,IHEF,8,1.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
-        ELSE IF(J.EQ.2) THEN
-            CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
-     1              MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
+            ELSE IF(J.EQ.2) THEN
+                CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
+     1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
      2                      VABSD,IHEF,8,-1.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
-        ELSE
-            CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
-     1              MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
+            ELSE
+                CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
+     1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
      2                      VABSD,IHEF,8,0.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
-        ENDIF
+            ENDIF
 C
-        ERRM=0.0D0
-        DO I=1,NTAB
-            ERRM=MAX(ERRM,ERROR(I))
-        ENDDO
-        WRITE(25,1005) EV,ECS,TCS1,TCS2,ABCS,ERRM
- 1005   FORMAT(1X,1P,5E13.5,E9.1)
-        CLOSE(8)
+            ERRM=0.0D0
+            DO I=1,NTAB
+                ERRM=MAX(ERRM,ERROR(I))
+            ENDDO
+            WRITE(25,1005) EV,ECS,TCS1,TCS2,ABCS,ERRM
+ 1005       FORMAT(1X,1P,5E13.5,E9.1)
+            CLOSE(8)
 C
-        J=J+1
+            J=J+1
         ENDDO
-************************Comment if you want a single run***********************
+
         IF (MODF.EQ.0) GO TO 500
         IF(ISK.EQ.1) THEN
-            WKSK=WKSK+DX
+          WKSK=WKSK+DX
         ELSE 
-            XC2=XC2+DX
+          XC2=XC2+DX
         ENDIF
       ENDDO
       IF (ISK.EQ.1) THEN
@@ -501,8 +500,7 @@ C
       ELSE
         WKSK=WKSK+DY
       ENDIF  
-      ENDDO
-*******************************************************************************
+
   500 CONTINUE
       READ(5,'(A6,1X,A12)',END=9999) KWORD,BUFFER
       IF(KWORD.EQ.'EV    ') GO TO 300
@@ -510,5 +508,4 @@ C
  9999 CONTINUE
       CLOSE(25)
       WRITE(6,*) 'Model=',MNUCL
-      !write (*,*), 'NORM=', MNUCL!O.K.
       END
