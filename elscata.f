@@ -3,85 +3,60 @@
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C
-C    +++++++++++++++++++++++++++++
-C    +++    PROGRAM ELSCATA    +++
-C    +++++++++++++++++++++++++++++
+C               +++++++++++++++++++++++++++++
+C               +++    PROGRAM ELSCATA    +++
+C               +++++++++++++++++++++++++++++
 C
 C
-C                              F. Salvat, A. Jablonski and C.J. Powell
-C                              September 27, 2004
+C                       O. Koshchii
+C                      April 3, 2022
+C
+C   This program does relativistic (Dirac) partial wave calculations
+C   of elastic scattering of electrons and positrons by neutral atoms 
+c   and positive ions with Z=1-103. The interaction between the projectile
+C   and the target system is assumed to be equal to the electrostatic
+C   potential energy, plus a local exchange potential in the case of
+C   projectile electrons. For projectiles with relatively low energies,
+C   approximate correlation-polarization and absorption corrections can
+C   be introduced.
+C
+C   The code calculates the phase shifts, the direct and spin-flip
+C   scattering amplitudes, the differential cross section (DCS) and the
+C   Sherman function (spin polarization) for electrons and positrons with
+C   kinetic energies larger than 10 eV. For kinetic energies larger than
+C   10 MeV, the convergence of the partial-wave series is too slow and
+C   the differential cross section is calculated using approximate high-
+C   energy factorization methods.
 C
 C
-C  ELastic SCATtering of electrons and positrons by Atoms (and ions)
-C  --      ----                                     -
+C   The input data file.
 C
-C     This program does relativistic (Dirac) partial wave calculations
-C  of elastic scattering of electrons and positrons by neutral atoms and
-C  positive ions with Z=1-103. The interaction between the projectile
-C  and the target system is assumed to be equal to the electrostatic
-C  potential energy, plus a local exchange potential in the case of
-C  projectile electrons. For projectiles with relatively low energies,
-C  approximate correlation-polarization and absorption corrections can
-C  be introduced.
+C   Data are read from a formatted input file (unit 5). Each line in
+C   this file consists of a 6-character keyword (columns 1-6) followed by
+C   a numerical value (in free format) that is written on the columns
+C   8-19. Keywords are explicitly used/verified by the program (which is
+C   case sensitive!). The text after column 20 describes the input
+C   quantity and its default value (in square brackets). This text is a
+C   reminder for the user and is not read by the program.
 C
-C     The code calculates the phase shifts, the direct and spin-flip
-C  scattering amplitudes, the differential cross section (DCS) and the
-C  Sherman function (spin polarization) for electrons and positrons with
-C  kinetic energies larger than 10 eV. For kinetic energies larger than
-C  10 MeV, the convergence of the partial-wave series is too slow and
-C  the differential cross section is calculated using approximate high-
-C  energy factorization methods.
+C   Lines defining default values can be omitted from the input file.
+C   The program assigns default values to input parameters that are not
+C   explicitly defined, and also to those that are manifestly wrong. The
+C   code stops when it finds an inconsistent input datum. The conflicting
+C   quantity appears in the last line written on the screen.
 C
 C
-C  **** The input data file.
+C   The computed information is delivered in various files with the
+C   extension '.dat'. The output file 'dcs_xpyyyezz.dat' contains the
+C   calculated DCS for the energy x.yyyEzz (E format, in eV) in a format
+C   ready for visualization with a plotting program. The output files
+C   'scfield.dat' and 'scatamp.dat' contain tables of the scattering
+C   potential and the scattering amplitudes of the last calculated case;
+C   they are overwritten (i.e. lost) when a new case is calculated.
 C
-C     Data are read from a formatted input file (unit 5). Each line in
-C  this file consists of a 6-character keyword (columns 1-6) followed by
-C  a numerical value (in free format) that is written on the columns
-C  8-19. Keywords are explicitly used/verified by the program (which is
-C  case sensitive!). The text after column 20 describes the input
-C  quantity and its default value (in square brackets). This text is a
-C  reminder for the user and is not read by the program.
-C
-C     Lines defining default values can be omitted from the input file.
-C  The program assigns default values to input parameters that are not
-C  explicitly defined, and also to those that are manifestly wrong. The
-C  code stops when it finds an inconsistent input datum. The conflicting
-C  quantity appears in the last line written on the screen.
-C
-C ----+----1----+----2----+----3----+----4----+----5----+----6----+----7
-C IZ      80         atomic number                               [none]
-C MNUCL   3          rho_n (1=P, 2=U, 3=F, 4=Uu)                  [  3]
-C NELEC   80         number of bound electrons                    [ IZ]
-C MELEC   4          rho_e (1=TFM, 2=TFD, 3=DHFS, 4=DF, 5=file)   [  4]
-C MUFFIN  0          0=free atom, 1=muffin-tin model              [  0]
-C RMUF    0          muffin-tin radius (cm)                  [measured]
-C IELEC  -1          -1=electron, +1=positron                     [ -1]
-C MWEAK   1          V_weak (0=none, 1=our model)                 [  0]
-C MEXCH   1          V_ex (0=none, 1=FM, 2=TF, 3=RT)              [  1]
-C MCPOL   2          V_cp (0=none, 1=B, 2=LDA)                    [  0]
-C VPOLA  -1          atomic polarizability (cm**3)           [measured]
-C VPOLB  -1          b_pol parameter                          [default]
-C MABS    1          W_abs (0=none, 1=LDA)                        [  0]
-C VABSA   2.00       absorption-potential strength, Aabs          [2.0]
-C VABSD  -1.0        energy gap DELTA (eV)                    [default]
-C IHEF    2          high-E factorization (0=no, 1=yes, 2=Born)   [  1]
-C EV      1.000E2    kinetic energy (eV)                         [none]
-C EV      1.000E3    optionally, more energies
-C ----+----1----+----2----+----3----+----4----+----5----+----6----+----7
-C
-C
-C     The computed information is delivered in various files with the
-C  extension '.dat'. The output file 'dcs_xpyyyezz.dat' contains the
-C  calculated DCS for the energy x.yyyEzz (E format, in eV) in a format
-C  ready for visualization with a plotting program. The output files
-C  'scfield.dat' and 'scatamp.dat' contain tables of the scattering
-C  potential and the scattering amplitudes of the last calculated case;
-C  they are overwritten (i.e. lost) when a new case is calculated.
-C
-C     This program uses the subroutine package 'elsepa.f', which has
-C  been inserted into this source file by using an INCLUDE statement
-C  (see above).
+C   This program uses the subroutine package 'elsepa.f', which has
+C   been inserted into this source file by using an INCLUDE statement
+C   (see above).
 C
 C
       IMPLICIT DOUBLE PRECISION (A-B,D-H,O-Z), COMPLEX*16 (C),
@@ -258,7 +233,7 @@ C  ****  Default model.
       IHEF  = 0        ! high-energy factorization on
       ISK   = 1        ! test flag      
       WKSK  = -0.00895 ! skin is -0.895% of RCH 
-      XC2   = 1.01D0   ! central value of C2 (in units of C1) 
+      XC2   = 1.05D0   ! central value of C2 (in units of C1) 
       ISOT  = 0        ! isotop indicator number (1 for Ca-48, 0 otherwise)
 C
   100 CONTINUE
@@ -274,7 +249,7 @@ C
         IF(MNUCL.LT.1.OR.MNUCL.GT.4) MNUCL=3
       ELSE IF(KWORD.EQ.'MODF  ') THEN
         READ(BUFFER,*) MODF
-        IF(MODF.NE.0) MNUCL=4!MNUCL=2
+        IF(MODF.NE.0) MNUCL=4
       ELSE IF(KWORD.EQ.'NELEC ') THEN
         READ(BUFFER,*) NELEC
         IF(NELEC.LT.0) NELEC=IZ
@@ -407,32 +382,33 @@ C
 ******Convert Lab energy to CM (UR approximation)**********************
       EVLAB=EV*1.0D-9 !Lab energy in GeV
       BEAMMASS=0.5109989461D-3
-      TARGMASS=0.9314940954D0*ELAW(IZ)!-IZ*BEAMMASS!0.93D9*ELAW(IZ)!
+      TARGMASS=0.9314940954D0*ELAW(IZ)
       SINV=TARGMASS**2+2.0D0*TARGMASS*EVLAB
       ECM=(SINV-TARGMASS**2)/(2.0D0*SQRT(SINV))
       ECMKIN=ECM-BEAMMASS
       EV=ECMKIN*1.0D9
       WRITE(6,*) 'Ekin_CM (eV) =',EV
-***************************************************
+***********************************************************************
       IF(EV.LT.10.0D0) STOP 'The kinetic energy is too small'
-C
-************************Comment here and on line 513 if you want a single run***********************
-      IF (ISK.EQ.1) THEN
-        DX=-0.0001D0!-0.001D0 !skin step
-        DY=0.01D0!0.2D0 !c2 step 
-      ELSE 
-        DX=0.009D0!0.009D0!0.2D0!c2 step
-        DY=-0.001D0
-      ENDIF
+      
+      IF (MODF.EQ.0) GO TO 400
+        IF (ISK.EQ.1) THEN
+            DX=-0.0001D0!skin step
+            DY=0.01D0!c2 step 
+        ELSE 
+            DX=0.009D0!c2 step
+            DY=-0.001D0
+        ENDIF
 
-      DO L=1,1!12
-      IF (ISK.EQ.1) THEN
-        WKSK=0.0D0 !initial skin
-      ELSE
-        XC2=0.0D0!0.005D0!0.05D0
-      ENDIF
-      DO K=1,401!21!451!401!21!Loop over different skins
+        DO L=1,1!12
+        IF (ISK.EQ.1) THEN
+            WKSK=0.0D0 !initial skin
+        ELSE
+            XC2=0.0D0!0.005D0!0.05D0
+        ENDIF
+        DO K=1,401
 ********************************************************************************
+  400   CONTINUE
         J=1
         DO WHILE (J.LE.3)!Loop over different beam helicities
 
@@ -513,6 +489,7 @@ C
         J=J+1
         ENDDO
 ************************Comment if you want a single run***********************
+        IF (MODF.EQ.0) GO TO 500
         IF(ISK.EQ.1) THEN
             WKSK=WKSK+DX
         ELSE 
@@ -525,7 +502,8 @@ C
         WKSK=WKSK+DY
       ENDIF  
       ENDDO
-*******************************************************************************      
+*******************************************************************************
+  500 CONTINUE
       READ(5,'(A6,1X,A12)',END=9999) KWORD,BUFFER
       IF(KWORD.EQ.'EV    ') GO TO 300
 C
