@@ -225,98 +225,63 @@ C
         RV(I)=DBLE(IELEC)*RVST(I)
       ENDDO
       RV(NPOT)=ZINF
-
-******Weak potential: Oleksandr Koshchii *************************************
+C
+C   Weak potential implementation by Oleksandr Koshchii
+C
       IF(MWEAK.NE.0) THEN              
         CALL WEAKCHARGE(QW,DBLE(IZ),ISOT)
         CALL GRIDCOEF(RMI,RMA)
- 
-********Calculation of radii that SG predicts*****************************************        
+C 
+C   Calculation of moments that sum of Gaussians (SG) predicts
+C
         CALL GAUSSCALC(GAUSS,GAUSSDENS,GAUSSRAD,GAUSSRADT,DBLE(IZ),ISOT,RMI,RMA,NDIN)
-        !GAUSSRAD=GAUSSRAD*F2BOHR!Convert radius output from fm to bohr 
-        !GAUSSRADT=GAUSSRADT*F2BOHR
-**************************************************************************************        
-*****Comment if you want to test nuclear models******************************
-        IF (MODF.EQ.0) THEN !No nuclear model test
-            IF (MWEAK.EQ.1) THEN
-                RC1=1.0D0
-                RC2=0.0D0
-                CALL CSKINMOM4(WKSKF,RCN,RT,WKSK,XC2,DBLE(IZ),ISOT,GAUSSRAD,MWEAK)
-            ELSE IF (MWEAK.EQ.2) THEN
-                !CALL FERMI2PCOEF(RC1,A1,DBLE(IZ),ISOT)
-                !RC2=XC2*RC1!C2 in units of bohr
-                A2=0.49445D0*F2BOHR!0.49445D0*F2BOHR!model2: better than average over 5 models
-                RC2=2.06849D0*F2BOHR!2.06849D0*F2BOHR!model2: better than average over 5 models                
-                !CALL RHOPRIMESF(DEPR1,DBLE(IZ),RC1,A1,RMI,RMA,NDIN)
-                !CALL RHOPRIMESF(DEPR2,DBLE(IZ),RC2,A1,RMI,RMA,NDIN)
+C        
+C   IF MODF equals to 0, sensitivity plots (Fig. 3 of Phys. Rev. C 102, 022501 (2020))
+C   cannot be generated, as the caculation is performed using one specific nuclear
+C   model for the weak skin (or no skin at all when MWEAK=1). Otherwise, sensitivity 
+C   plots can be generated using various nuclear models as an input. In this version
+C   of the code, five nuclear models of C-12 are implemented.
+C
+        IF (MODF.EQ.0) THEN !no nuclear model test
+            IF (MWEAK.EQ.1) THEN !no weak skin
+                RCN=0.0D0 !weak skin normalization factor
+            ELSE IF (MWEAK.EQ.2) THEN !symmetrized Fermi skin
+                A2=0.49445D0*F2BOHR !parameter "a" of model2
+                RC2=2.06849D0*F2BOHR !parameter "c" of model2                
                 CALL GAUSSCALC(POT1,DEPR1,RCH,RCHT,DBLE(IZ),ISOT,RMI,RMA,NDIN)
                 CALL FERMICALC(POT2,DEPR2,RWK,RWKT,DBLE(IZ),RC2,A2,RMI,RMA,NDIN)
-                RCN=1.0D0!WKSK*GAUSSRAD**2*(2.0D0+WKSK)/(RWK**2-RCH**2)
-                WRITE(*,*)'Skin=', (RWK-RCH)/RCH*100.0D0
-            ELSE   
-                !NEVER TESTED IT IN THIS FORM
-                CALL HELMCOEF(RC1,A1,DBLE(IZ),ISOT)
-                RC2=XC2*RC1!C2 in units of bohr
-                !CALL RHOPRIMEHELM(DEPR1,DBLE(IZ),ISOT,RC1,A1,RMI,RMA,NDIN)
-                !CALL RHOPRIMEHELM(DEPR2,DBLE(IZ),ISOT,RC2,A1,RMI,RMA,NDIN)
+                RCN=1.0D0 !weak skin normalization factor
+            ELSE IF (MWEAK.EQ.3) THEN  
+                !never tested in this form
+                A2=0.49445D0*F2BOHR
+                RC2=2.06849D0*F2BOHR
                 CALL GAUSSCALC(POT1,DEPR1,RCH,RCHT,DBLE(IZ),ISOT,RMI,RMA,NDIN)
-                CALL HELMCALC(POT2,DEPR2,RWK,RWKT,DBLE(IZ),RC2,A1,RMI,RMA,NDIN)
-                RCN=WKSK*GAUSSRAD**2*(2.0D0+WKSK)/(RWK**2-RCH**2)                
+                CALL HELMCALC(POT2,DEPR2,RWK,RWKT,DBLE(IZ),RC2,A2,RMI,RMA,NDIN)
+                RCN=1.0D0 !weak skin normalization factor        
+            ELSE
+                WRITE(6,*) 'Change the value for MWEAK --> 0...3'
+                STOP
             ENDIF
-            !GAUSSRAD=GAUSSRAD/F2BOHR
-            WRITE(*,*) 'GAUSSRAD=',GAUSSRAD,'RCH=',RCH,'RWK=',RWK
-            WRITE(*,*) 'NORM=',RCN
+            WRITE(*,*), 'WKSK=', WKSK, 'RCH'
             CALL SGRID(RWEAK,DIFRWEAK,RMI,RMA,0.5D0*DBLE(NDIN),NDIN)
-            !CALL CSKINMOM4(WKSKF,RCN,RT,WKSK,XC2,DBLE(IZ),ISOT,GAUSSRAD,MWEAK)
         ELSE
             CALL FERMI2PCOEFNUCL(RCCH2,ACH2,RCWK2,AWK2,DBLE(IZ),ISOT,MODF)
-            !CALL FERMICALC(POT1,DEPR1,RCH,RCHT,DBLE(IZ),RCCH1,ACH1,RMI,RMA,NDIN)
             CALL GAUSSCALC(POT1,DEPR1,RCH,RCHT,DBLE(IZ),ISOT,RMI,RMA,NDIN)
             CALL FERMICALC(POT2,DEPR2,RWK,RWKT,DBLE(IZ),RCWK2,AWK2,RMI,RMA,NDIN)
-            GAUSSRAD=GAUSSRAD!/F2BOHR
-            RCN=WKSK*GAUSSRAD**2*(2.0D0+WKSK)/(RWK**2-RCH**2)
+            !weak skin normalization factor changes depending on WKSK
+            RCN=WKSK*GAUSSRAD**2*(2.0D0+WKSK)/(RWK**2-RCH**2) 
             CALL SGRID(RWEAK,DIFRWEAK,RMI,RMA,0.5D0*DBLE(NDIN),NDIN)
-            WRITE(*,*) 'GAUSSRAD=',GAUSSRAD,'RCH=',RCH,'RWK=',RWK
-            WRITE(*,*) 'NORM=',RCN
+            WRITE(*,*), 'WKSK=', WKSK, 'RCH'
+            WRITE(*,*), 'NORM=', RCN
         END IF   
-******************************************************************************        
 
-
-        !CALL RHOPRIMESF(DEPR1,DBLE(IZ),RC1,A1,RMI,RMA,NDIN)
-        !CALL FERMICALC(DEPR2,DEPR1,RA,RAT,DBLE(IZ),RC1,A1,RMI,RMA,NDIN)!Depr2 is not used
-        !write (*,*), 'WKSKF=', WKSKF, 'RCHT'
-         write (*,*), 'WKSK=', WKSK, 'RCH'
-         write (*,*), 'NORM=', RCN
-        !write (*,*), 'C2=', XC2, 'C1 =', RC2/F2BOHR, 'fm'
-        !write (*,*), 'N=', RCN
-****Comment if you want to test the central line of our prediction************************
-c        IF (MODF.NE.0) THEN
-c            CALL FERMI2PCOEFNUCL(RCCH1,ACH1,RCWK1,AWK1,DBLE(IZ),ISOT,MODF)
-c            CALL FERMICALC(POT1,DEPR1,RCH,RCHT,DBLE(IZ),RCCH1,ACH1,RMI,RMA,NDIN)
-c            CALL FERMICALC(POT2,DEPR2,RWK,RWKT,DBLE(IZ),RCWK1,AWK1,RMI,RMA,NDIN)
-c            GAUSSRAD=GAUSSRAD/F2BOHR
-c            RCN=WKSK*GAUSSRAD**2*(2.0D0+WKSK)/(RWK**2-RCH**2)
-c            CALL SGRID(RWEAK,DIFRWEAK,RMI,RMA,0.5D0*DBLE(NDIN),NDIN)
-c        END IF
-c
-c        !write (*,*), 'RCH0=', GAUSSRAD/F2BOHR
-c        !write (*,*), 'RCH0T=', GAUSSRADT/F2BOHR
-c        !write (*,*), 'RCHM=', RCH
-c        !write (*,*), 'RCHTM=', RCHT
-c        !write (*,*), 'RWM=', RWK
-c        !write (*,*), 'RWTM=', RWKT
-c        write (*,*), 'N=',RCN 
-c        write (*,*), 'lambda=',wksk 
-*******************************************************************************************        
         DO I=1,NDIM
             X=RWEAK(I)
             RVN(I)=RV(I)
-            DE(I)=QW/DBLE(IZ)*DENN(I)+QW/DBLE(IZ)*RCN*(DEPR2(I)-DEPR1(I))!DENN is passed from EFIELD <--- comment for nucl models test
-            !DE(I)=QW/DBLE(IZ)*DEPR1(I)
+            DE(I)=QW/DBLE(IZ)*DENN(I)+QW/DBLE(IZ)*RCN*(DEPR2(I)-DEPR1(I)) !DENN is passed from EFIELD
             RVNW(I)=GF/(2.0D0**1.5D0)*X*DE(I)
             IF (RVN(I).EQ.0.0D0) RVNW(I)=0.0D0 
             RV(I)=RVN(I)+PV*RVNW(I)
-            !write(*,*) 'de=', RVNW(I)
         ENDDO
       END IF
 **************************************************************************************
@@ -562,7 +527,6 @@ C
             RW(I)=0.0D0
             NP=I
             NPI=I
-            WRITE (*,*) 'NP=',NP
             IF(RAD(I).GT.1.0D4.AND.NADD.GT.4) GO TO 2
           ENDDO
         ELSE
@@ -1190,13 +1154,13 @@ C
           DENN(I)=0.0D0
         ENDDO
       ELSE IF (MNUCL.EQ.2) THEN
-        IF (MODF.NE.0) THEN !To test nuclear models
-            CALL FERMI2PCOEFNUCL(C0,A0,RCWK1,AWK1,Z,ISOT,MODF)
-            CALL FERMICALC(FERMI,FERMIDENS,RAD,RADT,Z,C0,A0,RMI,RMA,NDIN)
-        ELSE
+        !IF (MODF.NE.0) THEN !To test nuclear models
+        !    CALL FERMI2PCOEFNUCL(C0,A0,RCWK1,AWK1,Z,ISOT,MODF)
+        !    CALL FERMICALC(FERMI,FERMIDENS,RAD,RADT,Z,C0,A0,RMI,RMA,NDIN)
+        !ELSE
             CALL FERMI2PCOEF(C0,A0,Z,ISOT)            
             CALL FERMICALC(FERMI,FERMIDENS,RAD,RADT,Z,C0,A0,RMI,RMA,NDIN)
-        ENDIF
+        !ENDIF
         DO I=1,NDIN
             X=R(I)
             RVN(I)=FERMI(I)
