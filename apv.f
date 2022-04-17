@@ -419,6 +419,15 @@ C
       DO K=1,201
 
   400   CONTINUE
+        IF (MWEAK.EQ.0) THEN
+            OFILE2 = '-nw'
+        ELSE IF (MWEAK.EQ.1) THEN
+            OFILE2 = '-ns'
+        ELSE IF (MWEAK.EQ.2) THEN
+            OFILE2 = '-sf'
+        ELSE IF (MWEAK.EQ.3) THEN
+            OFILE2 = '-hm'
+        ENDIF
         J=1
         DO WHILE (J.LE.3) !Loop over different beam helicities
 
@@ -427,19 +436,19 @@ C
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'+.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//OFILE2(1:3)//'+.dat')
             ELSE IF(J.EQ.2) THEN 
                 WRITE(BUFFER,'(1P,E12.5,I1)') EV
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'-.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//OFILE2(1:3)//'-.dat')
             ELSE
                 WRITE(BUFFER,'(1P,E12.5,I1)') EV
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//OFILE2(1:3)//'.dat')
             ENDIF  
       
 C
