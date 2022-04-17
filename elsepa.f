@@ -6,7 +6,7 @@ C                       SUBROUTINE ELSEPA
 C  *********************************************************************
       SUBROUTINE ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFIN,RMUF,MWEAK,
      1                  MEXCH,MCPOL,VPOLA,VPOLB,MABS,VABSA,VABSD,IHEF,
-     2                                         IW,PV,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                                         IW,PV,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
 C
 C
 C                              F. Salvat, A. Jablonski and C.J. Powell
@@ -992,37 +992,19 @@ C
 c
 *********************Sensitivity plots output*********************************************
       FMT = '(I3.3)'
-      IF (ISK.EQ.1) THEN
-        IF (MODF.EQ.0) THEN
-            WRITE (FMTX,FMT) INT(XC2*100) !FMTX is first to digits of XC2
-            IF (PV.EQ.1) THEN
-                FILENAME='mom1-newdata-'//TRIM(FMTX)//'+.dat'
-            ELSE IF (PV.EQ.-1) THEN
-                FILENAME='mom1-newdata-'//TRIM(FMTX)//'-.dat'
-            ELSE
-                GO TO 4018
-            END IF
-        ELSE !Nuclear models test
-            WRITE (FMTX,FMT) MODF !FMTX is first to digits of XC2            
-            IF (PV.EQ.1) THEN
-                FILENAME='mom1-newdata-nuclmodel'//TRIM(FMTX)//'+.dat'
-            ELSE IF (PV.EQ.-1) THEN
-                FILENAME='mom1-newdata-nuclmodel'//TRIM(FMTX)//'-.dat'
-            ELSE
-                GO TO 4018
-            END IF            
-        ENDIF
-        OPEN(61,FILE=FILENAME,ACTION='WRITE',POSITION='APPEND')
-      ELSE
-        WRITE (FMTX,FMT) INT(ABS(WKSK)*10000) !FMTX is first two digits of WKSK
+      !Nuclear models test
+      IF (MODF.NE.0) THEN
+        WRITE (FMTX,FMT) MODF !FMTX is first digits of model number            
         IF (PV.EQ.1) THEN
-            FILENAME='mom2-newdata-'//TRIM(FMTX)//'+.dat'
+            FILENAME='nuclmodel_'//TRIM(FMTX)//'+.dat'
         ELSE IF (PV.EQ.-1) THEN
-            FILENAME='mom2-newdata-'//TRIM(FMTX)//'-.dat'
+            FILENAME='nuclmodel_'//TRIM(FMTX)//'-.dat'
         ELSE
             GO TO 4018
-        END IF
-        OPEN(61,FILE=FILENAME,ACTION='WRITE',POSITION='APPEND')      
+        END IF            
+        OPEN(61,FILE=FILENAME,ACTION='WRITE',POSITION='APPEND')
+      ELSE
+        GO TO 4018
       ENDIF
 
       DO I=1, SIZE(INDX)

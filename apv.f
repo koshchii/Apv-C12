@@ -243,7 +243,6 @@ C
       VABSA = 2.0D0    ! absorption potential strength
       VABSD =-1.0D0    ! energy gap
       IHEF  = 0        ! high-energy factorization on
-      ISK   = 1        ! test flag      
       WKSK  = -0.00895 ! skin is -0.895% of RCH 
       XC2   = 1.05D0   ! central value of C2 (in units of C1) 
       ISOT  = 0        ! isotop indicator number (1 for Ca-48, 0 otherwise)
@@ -306,9 +305,6 @@ C
       ELSE IF(KWORD.EQ.'IHEF') THEN
         READ(BUFFER,*) IHEF
         IF(IHEF.NE.0.AND.IHEF.NE.2) IHEF=1
-      ELSE IF(KWORD.EQ.'ISK') THEN
-        READ(BUFFER,*) ISK
-        IF(ISK.LT.1.OR.ISK.GT.2) ISK=1
       ELSE IF(KWORD.EQ.'WKSK') THEN
         READ(BUFFER,*) WKSK
       ELSE IF(KWORD.EQ.'XC2') THEN
@@ -406,15 +402,10 @@ C
       IF(EV.LT.10.0D0) STOP 'The kinetic energy is too small'
       
       IF (MODF.EQ.0) GO TO 400
-      IF (ISK.EQ.1) THEN
-          DX=-0.0001D0 !skin step
-          DY=0.01D0 !c2 step 
-          WKSK=0.0D0 !initial skin
-      ELSE 
-          DX=0.009D0 !c2 step
-          DY=-0.001D0 !skin step
-          XC2=0.0D0 !initial c2
-      ENDIF
+          
+      DX=-0.0001D0 !skin step
+      DY=0.01D0 !c2 step 
+      WKSK=0.0D0 !initial skin
 C
       DO K=1,201
 
@@ -486,15 +477,15 @@ C
             IF(J.EQ.1) THEN
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,1.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,1.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
             ELSE IF(J.EQ.2) THEN
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,-1.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,-1.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
             ELSE
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,0.0D0,ISK,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,0.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
             ENDIF
 C
             ERRM=0.0D0
@@ -509,17 +500,9 @@ C
         ENDDO
 
         IF (MODF.EQ.0) GO TO 500
-        IF(ISK.EQ.1) THEN
-          WKSK=WKSK+DX
-        ELSE 
-          XC2=XC2+DX
-        ENDIF
+        WKSK=WKSK+DX
       ENDDO
-      IF (ISK.EQ.1) THEN
-        XC2=XC2+DY
-      ELSE
-        WKSK=WKSK+DY
-      ENDIF  
+      XC2=XC2+DY
 
   500 CONTINUE
       READ(5,'(A6,1X,A12)',END=9999) KWORD,BUFFER
