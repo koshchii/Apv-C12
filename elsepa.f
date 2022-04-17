@@ -6,7 +6,7 @@ C                       SUBROUTINE ELSEPA
 C  *********************************************************************
       SUBROUTINE ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFIN,RMUF,MWEAK,
      1                  MEXCH,MCPOL,VPOLA,VPOLB,MABS,VABSA,VABSD,IHEF,
-     2                                         IW,PV,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                                         IW,PV,WKSK,ISOT,EVLAB,TARGMASS,SINV)
 C
 C
 C                              F. Salvat, A. Jablonski and C.J. Powell
@@ -87,7 +87,6 @@ C                    screening factor.
 C    IW ........ output unit (to be defined in the main program).
 C    PV ........ parity related helicity constant (to be defined in the main program). !O.K.
 C    WKSK ...... weak skin as a fraction of the charge radius !O.K.
-C    XC2 ....... radius of SF model (C2) as a fraction of C1 of the same model reproducing the charge radius !O.K.
 C
 C  The electrostatic potential and electron density of the target atom
 C  or ion are calculated by subroutine EFIELD and delivered through the
@@ -224,7 +223,7 @@ C
         WRITE(IW,*) 'ELSEPA: incorrect MELEC value.'
         STOP 'ELSEPA: incorrect MELEC value.'
       ENDIF
-      CALL EFIELD(DENN,IZ,NELEC,NELEC,MNUCL,MODF,MELEC,IW,WKSK,XC2,ISOT)      
+      CALL EFIELD(DENN,IZ,NELEC,NELEC,MNUCL,MODF,MELEC,IW,WKSK,ISOT)      
       ZINF=IELEC*DBLE(IZ-NELEC)
       DO I=1,NPOT
         RV(I)=DBLE(IELEC)*RVST(I)
@@ -757,7 +756,7 @@ C  ****  Read screening function from data files.
           GO TO 5
         ENDIF
 C        (The number of atomic electrons is set to zero)
-        CALL EFIELD(DENN,IZ,NELEC,0,MNUCL,MODF,MELEC,IW,WKSK,XC2,ISOT)        
+        CALL EFIELD(DENN,IZ,NELEC,0,MNUCL,MODF,MELEC,IW,WKSK,ISOT)        
         DO I=1,NPOT
           RAD(I)=R(I)
           RV(I)=DFLOAT(IELEC)*RVN(I)
@@ -1026,7 +1025,7 @@ C
 C  *********************************************************************
 C                       SUBROUTINE EFIELD
 C  *********************************************************************
-      SUBROUTINE EFIELD(DENN,IZ,NELEC,N,MNUCL,MODF,MELEC,IW,WKSK,XC2,ISOT)
+      SUBROUTINE EFIELD(DENN,IZ,NELEC,N,MNUCL,MODF,MELEC,IW,WKSK,ISOT)
 C
 C     Electrostatic field of atoms and ions.
 C

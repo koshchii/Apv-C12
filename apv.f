@@ -244,7 +244,6 @@ C
       VABSD =-1.0D0    ! energy gap
       IHEF  = 0        ! high-energy factorization on
       WKSK  = -0.00895 ! skin is -0.895% of RCH 
-      XC2   = 1.05D0   ! central value of C2 (in units of C1) 
       ISOT  = 0        ! isotop indicator number (1 for Ca-48, 0 otherwise)
 C
   100 CONTINUE
@@ -307,8 +306,6 @@ C
         IF(IHEF.NE.0.AND.IHEF.NE.2) IHEF=1
       ELSE IF(KWORD.EQ.'WKSK') THEN
         READ(BUFFER,*) WKSK
-      ELSE IF(KWORD.EQ.'XC2') THEN
-        READ(BUFFER,*) XC2
       ELSE IF(KWORD.EQ.'ISOT') THEN
         READ(BUFFER,*) ISOT
       ELSE IF(KWORD.EQ.'EV    ') THEN
@@ -476,15 +473,15 @@ C
             IF(J.EQ.1) THEN
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,1.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,1.0D0,WKSK,ISOT,EVLAB,TARGMASS,SINV)
             ELSE IF(J.EQ.2) THEN
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,-1.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,-1.0D0,WKSK,ISOT,EVLAB,TARGMASS,SINV)
             ELSE
                 CALL ELSEPA(IELEC,EV,IZ,NELEC,MNUCL,MODF,MELEC,MUFFIN,RMUF,
      1                      MWEAK,MEXCH,MCPOLC,VPOLA,VPOLBC,MABSC,VABSA,
-     2                      VABSD,IHEF,8,0.0D0,WKSK,XC2,ISOT,EVLAB,TARGMASS,SINV)
+     2                      VABSD,IHEF,8,0.0D0,WKSK,ISOT,EVLAB,TARGMASS,SINV)
             ENDIF
 C
             ERRM=0.0D0
