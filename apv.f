@@ -4,7 +4,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C
 C               +++++++++++++++++++++++++++++
-C               +++    PROGRAM ELSCATA    +++
+C               +++      PROGRAM apv      +++
 C               +++++++++++++++++++++++++++++
 C
 C
@@ -62,21 +62,24 @@ C
       IMPLICIT DOUBLE PRECISION (A-B,D-H,O-Z), COMPLEX*16 (C),
      1   INTEGER*4 (I-N)
       CHARACTER*6 KWORD
-      CHARACTER*12 BUFFER,OFILE,OFILE1
+      CHARACTER*12 BUFFER,OFILE,OFILE1,OFILE2
 C
       PARAMETER (A0B=5.2917721067D-9)  ! Bohr radius (cm)
       PARAMETER (A0B2=A0B*A0B)
       PARAMETER (PI=3.1415926535897932D0)
-C  ****  Results from the partial wave calculation.
+C
+C   Results from the partial wave calculation.
+C
       PARAMETER (NGT=650)
       COMMON/DCSTAB/ECS,TCS1,TCS2,TH(NGT),XT(NGT),DCST(NGT),DCSTLAB(NGT),SPOL(NGT),
      1              ERROR(NGT),NTAB,THLAB(NGT)
       COMMON/CTOTCS/TOTCS,ABCS
 C
-C  ****  Atomic polarizabilities of free atoms (in cm**3), from
-C    Thomas M. Miller, 'Atomic and molecular polarizabilities' in
-C    CRC Handbook of Chemistry and Physics, Editor-in-chief David
-C    R. Linde. 79th ed., 1998-1999, pp. 10-160 to 10-174.
+C   Atomic polarizabilities of free atoms (in cm**3), from
+C   Thomas M. Miller, 'Atomic and molecular polarizabilities' in
+C   CRC Handbook of Chemistry and Physics, Editor-in-chief David
+C   R. Linde. 79th ed., 1998-1999, pp. 10-160 to 10-174.
+C
       DIMENSION ATPOL(103)
       DATA ATPOL/   0.666D-24, 0.205D-24, 24.30D-24, 5.600D-24,
      A   3.030D-24, 1.760D-24, 1.100D-24, 0.802D-24, 0.557D-24,
@@ -100,11 +103,12 @@ C    R. Linde. 79th ed., 1998-1999, pp. 10-160 to 10-174.
      A   23.30D-24, 23.00D-24, 22.70D-24, 20.50D-24, 19.70D-24,
      1   23.80D-24, 18.20D-24, 17.50D-24, 20.00D-24/
 C
-C  ****  Ionization energies of neutral atoms (in eV).
-C        NIST Physical Reference Data.
-C        http://sed.nist.gov/PhysRefData/IonEnergy/tblNew.html
-C  For astatine (Z=85), the value given below was calculated with
-C  the DHFXA code (Salvat and Fernandez-Varea, UBIR-2003).
+C   Ionization energies of neutral atoms (in eV).
+C   NIST Physical Reference Data.
+C   http://sed.nist.gov/PhysRefData/IonEnergy/tblNew.html
+C   For astatine (Z=85), the value given below was calculated with
+C   the DHFXA code (Salvat and Fernandez-Varea, UBIR-2003).
+C
       DIMENSION EIONZ(103)
       DATA EIONZ/  13.5984D0, 24.5874D0, 5.39170D0, 9.32270D0,
      A  8.29800D0, 11.2603D0, 14.5341D0, 13.6181D0, 17.4228D0,
@@ -128,10 +132,11 @@ C  the DHFXA code (Salvat and Fernandez-Varea, UBIR-2003).
      A  5.97380D0, 5.99150D0, 6.19790D0, 6.28170D0, 6.42000D0,
      1  6.50000D0, 6.58000D0, 6.65000D0, 4.90000D0/
 C
-C  ****  First excitation energies of neutral atoms (in eV).
-C        NIST Physical Reference Data.
-C  The value 0.0D0 indicates that the experimental value for
-C  the atom was not available.
+C   First excitation energies of neutral atoms (in eV).
+C   NIST Physical Reference Data.
+C   The value 0.0D0 indicates that the experimental value for
+C   the atom was not available.
+C
       DIMENSION EEX1Z(103)
       DATA EEX1Z/ 10.20D0, 19.82D0,  1.85D0,  2.73D0,
      A    3.58D0,  1.26D0,  2.38D0,  1.97D0, 12.70D0,
@@ -155,11 +160,12 @@ C  the atom was not available.
      A    0.00D0,  0.00D0,  0.00D0,  0.00D0,  0.00D0,
      1    0.00D0,  0.00D0,  0.00D0,  0.00D0/
 C
-C  ****  Nearest-neighbour distances (in cm) of the elements,
-C    from Ch. Kittel, 'Introduction to Solid State Physics'. 5th
-C    ed. (John Wiley and Sons, New York, 1976).
-C  The value -1.0D-8 indicates that the experimental value for
-C  the element was not available.
+C   Nearest-neighbour distances (in cm) of the elements,
+C   from Ch. Kittel, 'Introduction to Solid State Physics'. 5th
+C   ed. (John Wiley and Sons, New York, 1976).
+C   The value -1.0D-8 indicates that the experimental value for
+C   the element was not available.
+C
       DIMENSION DNNEL(103)
       DATA DNNEL/    -1.000D-8,-1.000D-8, 3.124D-8, 2.220D-8,
      A     -1.000D-8, 1.540D-8,-1.000D-8,-1.000D-8, 1.440D-8,
@@ -182,7 +188,9 @@ C  the element was not available.
      9      3.600D-8, 3.210D-8, 2.750D-8, 2.620D-8, 3.100D-8,
      A      3.610D-8,-1.000D-8,-1.000D-8,-1.000D-8,-1.000D-8,
      1     -1.000D-8,-1.000D-8,-1.000D-8,-1.000D-8/
-C  Atomic weights
+C
+C   Atomic weights
+C
       DIMENSION ELAW(103)
       DATA ELAW     /1.007900D0,4.002600D0,6.941000D0,9.012200D0,
      1    1.081100D1,1.200000D1,1.400670D1,1.599940D1,1.899840D1,
@@ -204,16 +212,20 @@ C  Atomic weights
      7    2.099871D2,2.220176D2,2.230197D2,2.260254D2,2.270277D2,
      8    2.320381D2,2.310359D2,2.380289D2,2.370482D2,2.440642D2,
      9    2.430614D2,2.470000D2,2.470000D2,2.510000D2,2.520000D2,
-     1    2.570000D2,2.580000D2,2.590000D2,2.620000D2/     
-C  ****  Phase shifts.
+     1    2.570000D2,2.580000D2,2.590000D2,2.620000D2/
+C
+C   Phase shifts.
+C
       PARAMETER (NDM=25000)
       COMMON/PHASES/DP(NDM),DM(NDM),NPH,ISUMP
       COMMON/PHASEI/DPJ(NDM),DMJ(NDM)
 
 C
-C  ************  Input data.
+C   Input data.
 C
-C  ****  Default model.
+C
+C   Default model.
+C
       IZ    = 6        ! C-12
       MNUCL = 4        ! Gaussian nuclear charge distribution
       MODF  = 1        ! Nuclear model choice 
@@ -310,7 +322,7 @@ C
       ENDIF
       GO TO 100
 C
-C  ****  Potential model parameters.
+C   Potential model parameters.
 C
   200 CONTINUE
       IF(NELEC.EQ.1000) NELEC=IZ
@@ -373,13 +385,15 @@ C
      1  9X,'ABSCS',6X,'error',/1X,'#',4X,'(eV)',8X,'(cm**2)',6X,
      2  '(cm**2)',6X,'(cm**2)',6X,'(cm**2)',/1X,'#',74('-'))
 C
-C  ************  Partial-wave analysis.
+C   Partial-wave analysis.
 C
   300 CONTINUE
       READ(BUFFER,*) EV
       WRITE(6,*) '   '
       WRITE(6,*) 'Etot_lab (eV)=',EV
-******Convert Lab energy to CM (UR approximation)**********************
+C
+C   Convert Lab energy to CM (UR approximation)
+C
       EVLAB=EV*1.0D-9 !Lab energy in GeV
       BEAMMASS=0.5109989461D-3
       TARGMASS=0.9314940954D0*ELAW(IZ)
@@ -388,47 +402,44 @@ C
       ECMKIN=ECM-BEAMMASS
       EV=ECMKIN*1.0D9
       WRITE(6,*) 'Ekin_CM (eV) =',EV
-***********************************************************************
+C
       IF(EV.LT.10.0D0) STOP 'The kinetic energy is too small'
       
       IF (MODF.EQ.0) GO TO 400
       IF (ISK.EQ.1) THEN
-          DX=-0.0001D0!skin step
-          DY=0.01D0!c2 step 
+          DX=-0.0001D0 !skin step
+          DY=0.01D0 !c2 step 
+          WKSK=0.0D0 !initial skin
       ELSE 
-          DX=0.009D0!c2 step
-          DY=-0.001D0!skin step
+          DX=0.009D0 !c2 step
+          DY=-0.001D0 !skin step
+          XC2=0.0D0 !initial c2
       ENDIF
-
-      IF (ISK.EQ.1) THEN
-        WKSK=0.0D0 !initial skin
-      ELSE
-        XC2=0.0D0!initial c2
-      ENDIF
-      DO K=1,401
+C
+      DO K=1,201
 
   400   CONTINUE
         J=1
-        DO WHILE (J.LE.3)!Loop over different beam helicities
+        DO WHILE (J.LE.3) !Loop over different beam helicities
 
             IF(J.EQ.1) THEN
                 WRITE(BUFFER,'(1P,E12.5)') EV        
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='m5-dcs_'//OFILE(1:8)//OFILE1(1:2)//'+.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'+.dat')
             ELSE IF(J.EQ.2) THEN 
                 WRITE(BUFFER,'(1P,E12.5,I1)') EV
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='m5-dcs_'//OFILE(1:8)//OFILE1(1:2)//'-.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'-.dat')
             ELSE
                 WRITE(BUFFER,'(1P,E12.5,I1)') EV
                 OFILE=BUFFER(2:2)//'p'//BUFFER(4:6)//'e'//BUFFER(11:12)
                 WRITE(BUFFER,'(1P,I1.1)') MNUCL        
                 OFILE1='m'//BUFFER(1:1)
-                OPEN(8,FILE='m5-dcs_'//OFILE(1:8)//OFILE1(1:2)//'.dat')
+                OPEN(8,FILE='dcs_'//OFILE(1:8)//OFILE1(1:2)//'.dat')
             ENDIF  
       
 C
