@@ -1,6 +1,6 @@
 IZ      6          NC: atomic number                                        [  6]
 MNUCL   4          nuclear dens model (1=Point, 2=2pSF, 3=Helm, 4=Gauss)    [  4]
-MODF    1          nuclear model choice. (0=none, 1-5. if neq0 -> MNUCL=4)  [  1]
+MODF    0          nuclear model choice. (0=none, 1-5. if neq0 -> MNUCL=4)  [  1]
 NELEC   0          NC: number of bound electrons 0≤NELEC≤IZ                 [  0]
 MELEC   4          NC: rho_e (1=TFM, 2=TFD, 3=DHFS, 4=DF, 5=file)           [  4]
 MUFFIN  0          NC: 0=free atom, 1=muffin-tin model                      [  0]

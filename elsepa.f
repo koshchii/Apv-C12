@@ -114,7 +114,7 @@ C  ****  The parameter IWR defines the amount of information printed on
 C  output files:
 C  IWR>0 => the scattering potential is printed on file 'scfield.dat'.
 C  IWR>1 => the scattering amplitudes are printed on file 'scatamp.dat'.
-      PARAMETER (IWR=2)
+      PARAMETER (IWR=0)
 C
 C
       PARAMETER (A0B=5.2917721067D-9)  ! Bohr radius (cm)
@@ -155,7 +155,12 @@ C
       COMMON/CRMORU/CFM(NPC),CGM(NPC),DPC(NPC),DMC(NPC),
      1              CF,CG,RUTHC,WATSC,RK2,ERRFC,ERRGC,NPC1
       DIMENSION DENA(NPC),DENB(NPC),DENC(NPC),DEND(NPC)
-      INTEGER :: INDX(18) = (/305,317,327,387,467,527,537,547,295,297,299,301,303,307,309,311,313,315/) !OK: Choice of the scattering angles for the analysis of C12
+C
+C   Below one can choose which scattering angles to write to
+C   files nuclmodel_001+.dat, nuclmodel_001-.dat, etc. when
+C   the input parameter MODF is set to be nonzero.
+C
+      INTEGER :: INDX(18) = (/305,317,327,387,467,527,537,547,295,297,299,301,303,307,309,311,313,315/) 
       CHARACTER(3) :: FMTX
       CHARACTER(6) :: FMT
 C
@@ -714,7 +719,7 @@ C
 C
 C  ****  At high energies, we compute the DCS for scattering by the bare
 C  (finite) nucleus and multiply it by a pre-evaluated screening factor.
-CR1/10.0D0
+C  R1/10.0D0
   100 CONTINUE
       IF(IHEF0.EQ.1) THEN
         IAB=0
@@ -934,8 +939,9 @@ C
      1  16X,''DCSLAB'',16X,''Sherman'',16X,''error''/1X,''#  (deg)'',
      2  10X,''(deg)'',16X,''(cm**2/sr)'',12X,''(cm**2/sr)'',12X,''function'',
      3  /1X,''#'',70(''-''))')
-**************** Lab angle and XS table******* O.K.
-        
+C     
+C   Convert centre of mass angles and cross sections to lab frame
+C        
       DO I=1,NTAB
         THRAD=TH(I)*PI/180.0D0
         QSQ=1.0D0/(2.0D0*SINV)*(SINV-TARGMASS**2)**2*(1.0D0-COS(THRAD))
@@ -945,16 +951,15 @@ C
         GAMMACL=(TARGMASS+EVLAB)/SQRT(SINV)
         ALPHAJC=EVLAB/(TARGMASS+EVLAB)
         DCSTLAB(I)=((GAMMACL**2*(ALPHAJC+COS(THRAD))**2+SIN(THRAD)**2)**(1.5D0))/(GAMMACL*ABS(1.0D0+ALPHAJC*COS(THRAD)))*DCST(I)
-        !WRITE(*,*) 'thetacm= ',TH(I),'thetalab= ',THLAB(I)
       ENDDO
-******************************************
 C
       DO I=1,NTAB
         WRITE(IW,2018) TH(I),THLAB(I),DCST(I),DCSTLAB(I),SPOL(I),ERROR(I)
       ENDDO
  2018 FORMAT(1X,1P,E16.8,E16.8,E22.14,E22.14,3E22.14,E9.1)
-c
-*********************Sensitivity plots output*********************************************
+C
+C   Sensitivity plots output
+C
       FMT = '(I3.3)'
       !Nuclear models test
       IF (MODF.NE.0) THEN
@@ -973,16 +978,15 @@ c
 
       DO I=1, SIZE(INDX)
         J=INDX(I)
-        IF (MODF.EQ.0) THEN
-            WRITE(61,3018) PV,THLAB(J),DCSTLAB(J),RC2/RC1,WKSKF,WKSK        
-        ELSE
+        !IF (MODF.EQ.0) THEN
+        !    WRITE(61,3018) PV,THLAB(J),DCSTLAB(J),RC2/RC1,WKSKF,WKSK        
+        !ELSE
             WRITE(61,3018) PV,THLAB(J),DCSTLAB(J),WKSK
-        ENDIF    
+        !ENDIF    
       END DO
  3018 FORMAT(1X,1P,E16.8,E16.8,4E22.14,E9.1)
       CLOSE (61)
  4018 CONTINUE
-******************************************************************************************
 C     
 C  ****  Scattering amplitudes.
 C
@@ -1062,7 +1066,7 @@ C
       CHARACTER*12 ELFILE,NULL
       CHARACTER*2 LSYMBL(103)
 C  ****  Set IWR=1 to print the electrostatic potential on a file.
-      PARAMETER (IWR=1)
+      PARAMETER (IWR=0)
 C
       PARAMETER (A0B=5.2917721067D-9)  ! Bohr radius (cm)
       PARAMETER (HREV=27.21138602D0)  ! Hartree energy (eV)
@@ -2043,7 +2047,7 @@ C  respect to I.
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z), INTEGER*4 (I-N)
 C  ****  Set IWR=1 to print the grid on a file.
-      PARAMETER (IWR=1)
+      PARAMETER (IWR=0)
       DIMENSION R(N),DIFR(N)
 C
  1000 FORMAT(4X,'R0=',1P,E18.11,'  RN=',E18.11,

@@ -404,7 +404,6 @@ C
       IF (MODF.EQ.0) GO TO 400
           
       DX=-0.0001D0 !skin step
-      DY=0.01D0 !c2 step 
       WKSK=0.0D0 !initial skin
 C
       DO K=1,201
@@ -502,7 +501,6 @@ C
         IF (MODF.EQ.0) GO TO 500
         WKSK=WKSK+DX
       ENDDO
-      XC2=XC2+DY
 
   500 CONTINUE
       READ(5,'(A6,1X,A12)',END=9999) KWORD,BUFFER
