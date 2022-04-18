@@ -1,6 +1,6 @@
 IZ      6          NC: atomic number                                        [  6]
 MNUCL   4          nuclear dens model (1=Point, 2=2pSF, 3=Helm, 4=Gauss)    [  4]
-MODF    0          nuclear model choice. (0=none, 1-5. if neq0 -> MNUCL=4)  [  1]
+MODF    2          model choice for higher moments study. (0=none, 1-5)     [  0]
 NELEC   0          NC: number of bound electrons 0≤NELEC≤IZ                 [  0]
 MELEC   4          NC: rho_e (1=TFM, 2=TFD, 3=DHFS, 4=DF, 5=file)           [  4]
 MUFFIN  0          NC: 0=free atom, 1=muffin-tin model                      [  0]
@@ -16,6 +16,5 @@ VABSA   2.00       NC: absorption-potential strength. Used only when MABS=1 [2.0
 VABSD  -1.0        NC: energy gap DELTA (eV). Used only when MABS=1         [ -1]
 IHEF    0          NC: high-E factoriz. (0=no, 1=yes Eq.87, 2=Born Eq.88)   [  0]
 WKSK    -0.00895   central value of weak skin (in units of charge radius)   [-0.00895]
-XC2     1.05       NC: central value of C2 (in units of C1)                 [1.05]
 ISOT    0          NC: isotop indicator number (1 for Ca-48, 0 otherwise)   [  0]
 EV      1.55E8     total beam energy (eV) lab frame

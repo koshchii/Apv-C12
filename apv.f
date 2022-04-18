@@ -228,7 +228,7 @@ C   Default model.
 C
       IZ    = 6        ! C-12
       MNUCL = 4        ! Gaussian nuclear charge distribution
-      MODF  = 1        ! Nuclear model choice 
+      MODF  = 0        ! Model choice for higher moments study.  
       NELEC = 0        ! Just nucleus
       MELEC = 4        ! DF electron density
       MUFFIN= 0        ! free atom
